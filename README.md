@@ -14,8 +14,6 @@ EXAMPLE USE:
 
 myTiff = parallelReadTiff('C:\Users\Example\Desktop\test.tif');
 
-You can also select a range for the stacks if you do not want to read in the entire image
-
 EXAMPLE USE (Will give the first 1000 stacks of an image):
 
 myTiff = parallelReadTiff('C:\Users\Example\Desktop\test.tif',[1,1000]); 
