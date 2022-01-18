@@ -16,9 +16,14 @@ EXAMPLE USE:
 
 myTiff = parallelReadTiff('C:\Users\Example\Desktop\test.tif');
 
-EXAMPLE USE (Will give the first 1000 stacks of an image):
+USER DEFINED STACK RANGE EXAMPLE USE (Will give the first 1000 stacks of an image):
 
-myTiff = parallelReadTiff('C:\Users\Example\Desktop\test.tif',[1,1000]); 
+myTiff = parallelReadTiff('C:\Users\Example\Desktop\test.tif',[1,1000]);
+
+getImageSize_mex EXAMPLE USE (Returns the size in [y,x,z] format):
+
+myTiffSize = getImageSize_mex('C:\Users\Example\Desktop\test.tif');
+ 
 
 # MATLAB COMPILATION
 
