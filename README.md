@@ -10,6 +10,8 @@ Linux mex extentsion - .mexa64
 
 Mac mex extentsion - .mexmaci64
 
+parallelReadTiff supports 8 bit, 16 bit, single precision, and double precision images.
+
 EXAMPLE USE:
 
 myTiff = parallelReadTiff('C:\Users\Example\Desktop\test.tif');
