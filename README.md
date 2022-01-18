@@ -4,11 +4,11 @@
 
 The mex files can be called directly from MATLAB once added to the MATLAB path.
 
-Windows - .mexw64
+Windows mex extentsion - .mexw64
 
-Linux - .mexa64
+Linux mex extentsion - .mexa64
 
-Mac - .mexmaci64
+Mac mex extentsion - .mexmaci64
 
 # MATLAB COMPILATION
 
@@ -20,13 +20,13 @@ NOTE: When compiling the mex file yourself. You will need to have libtiff compil
 
 mex -v COPTIMFLAGS="-O3 -fwrapv -DNDEBUG" CFLAGS='$CFLAGS -O3' LDFLAGS='$LDFLAGS -O3' '-IC:\path\to\libtiff\include' '-LC:\path\to\libtiff\lib\' -ltiffd.lib parallelReadTiff.c
 
-# Linux (Tested using gcc 8.3.0)
+# Linux (Tested using GCC 8.3.0)
 
 mex -v COPTIMFLAGS="-O3 -fwrapv -DNDEBUG" CFLAGS='$CFLAGS -O3' LDFLAGS='$LDFLAGS -O3' '-I/path/to/libtiff/include' '-L/path/to/libtiff/include/' -ltiff parallelReadTiff.c
 
-# Mac (Tested compiling with gcc on mac)
+# Mac (Tested compiling with GCC on mac)
 
-NOTE: Mac's default compilers in MATLAB do not support openmp so it is suggested to compile it using gcc or installing the needed libraries for openmp to work with your compiler.
+NOTE: Mac's default compilers in MATLAB do not support openmp so it is suggested to compile it using GCC or installing the needed libraries for openmp to work with your compiler.
 
 Step 1: /usr/local/Cellar/gcc/11.2.0_3/bin/gcc-11 -c -DMATLAB_DEFAULT_RELEASE=R2017b -DUSE_MEX_CMD  -DMATLAB_MEX_FILE -I"/usr/local/include" -I"/usr/local/opt/llvm/include" -I"/Applications/MATLAB_R2021a.app/extern/include" -I"/Applications/MATLAB_R2021a.app/simulink/include" -fno-common -arch x86_64 -mmacosx-version-min=10.14 -fexceptions -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk -fopenmp -Wall -I/usr/local/opt/llvm/include -O3 -Xpreprocessor -fopenmp -lpthread -mmacosx-version-min=11.10 -O3 -fwrapv -DNDEBUG "main.c" -o main.o
 
