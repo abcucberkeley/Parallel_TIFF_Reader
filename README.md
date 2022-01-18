@@ -10,6 +10,16 @@ Linux mex extentsion - .mexa64
 
 Mac mex extentsion - .mexmaci64
 
+EXAMPLE USE:
+
+myTiff = parallelReadTiff('C:\Users\Example\Desktop\test.tif');
+
+You can also select a range for the stacks if you do not want to read in the entire image
+
+EXAMPLE USE (Will give the first 1000 stacks of an image):
+
+myTiff = parallelReadTiff('C:\Users\Example\Desktop\test.tif',[1,1000]); 
+
 # MATLAB COMPILATION
 
 NOTE: When compiling the mex file yourself. You will need to have libtiff compiled on your system.
@@ -24,7 +34,7 @@ mex -v COPTIMFLAGS="-O3 -fwrapv -DNDEBUG" CFLAGS='$CFLAGS -O3' LDFLAGS='$LDFLAGS
 
 mex -v COPTIMFLAGS="-O3 -fwrapv -DNDEBUG" CFLAGS='$CFLAGS -O3' LDFLAGS='$LDFLAGS -O3' '-I/path/to/libtiff/include' '-L/path/to/libtiff/include/' -ltiff parallelReadTiff.c
 
-# Mac (Tested compiling with GCC on mac)
+# Mac (Tested compiling with GCC on Mac)
 
 NOTE: Mac's default compilers in MATLAB do not support openmp so it is suggested to compile it using GCC or installing the needed libraries for openmp to work with your compiler.
 
