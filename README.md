@@ -1,5 +1,9 @@
 # Parallel_TIFF_Reader
 
+An optimized and efficient parallel tiff reader that utilizes LibTIFF and OpenMP.
+
+parallelReadTiff supports 8 bit, 16 bit, single precision, and double precision images.
+
 # MATLAB USAGE
 
 The mex files can be called directly from MATLAB once added to the MATLAB path.
@@ -9,8 +13,6 @@ Windows mex extentsion - .mexw64
 Linux mex extentsion - .mexa64
 
 Mac mex extentsion - .mexmaci64
-
-parallelReadTiff supports 8 bit, 16 bit, single precision, and double precision images.
 
 EXAMPLE USE:
 
@@ -29,7 +31,7 @@ myTiffSize = getImageSize_mex('C:\Users\Example\Desktop\test.tif');
 
 NOTE: When compiling the mex file yourself. You will need to have libtiff compiled on your system.
 
-(You may also need zlib compiled on your system as it is a dependecy for some options in libtiff)
+(You may also need zlib compiled on your system as it is a dependency for some options in libtiff)
 
 # Windows (Tested using MinGW64 Compiler (C))
 
@@ -41,7 +43,7 @@ mex -v COPTIMFLAGS="-O3 -fwrapv -DNDEBUG" CFLAGS='$CFLAGS -O3 -fopenmp' LDFLAGS=
 
 # Mac (Tested compiling with GCC on Mac)
 
-NOTE: Mac's default compilers in MATLAB do not support openmp so it is suggested to compile it using GCC or installing the needed libraries for openmp to work with your compiler.
+NOTE: Mac's default compilers in MATLAB do not support openmp so it is suggested to compile it using GCC or install the needed libraries for openmp to work with your compiler.
 
 Step 1: /usr/local/Cellar/gcc/11.2.0_3/bin/gcc-11 -c -DMATLAB_DEFAULT_RELEASE=R2017b -DUSE_MEX_CMD  -DMATLAB_MEX_FILE -I"/usr/local/include" -I"/usr/local/opt/llvm/include" -I"/Applications/MATLAB_R2021a.app/extern/include" -I"/Applications/MATLAB_R2021a.app/simulink/include" -fno-common -arch x86_64 -mmacosx-version-min=10.14 -fexceptions -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk -fopenmp -Wall -I/usr/local/opt/llvm/include -O3 -Xpreprocessor -fopenmp -lpthread -mmacosx-version-min=11.10 -O3 -fwrapv -DNDEBUG "main.c" -o main.o
 
