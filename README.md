@@ -14,11 +14,11 @@ Linux mex extentsion - .mexa64
 
 Mac mex extentsion - .mexmaci64
 
-EXAMPLE USE:
+EXAMPLE USE (Returns a 3D array in y,x,z format):
 
 myTiff = parallelReadTiff('C:\Users\Example\Desktop\test.tif');
 
-USER DEFINED STACK RANGE EXAMPLE USE (Will give the first 1000 stacks of an image):
+USER DEFINED Z STACK RANGE EXAMPLE USE (Will give the first 1000 z stacks of an image):
 
 myTiff = parallelReadTiff('C:\Users\Example\Desktop\test.tif',[1,1000]);
 
