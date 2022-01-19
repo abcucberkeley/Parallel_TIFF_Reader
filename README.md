@@ -4,6 +4,9 @@ An optimized and efficient parallel tiff reader that utilizes LibTIFF and OpenMP
 
 parallelReadTiff supports 8 bit, 16 bit, single precision, and double precision images.
 
+# Timing Comparison
+![alt text](./Images/timingsBarPlot.png)
+
 # MATLAB USAGE
 
 The mex files can be called directly from MATLAB once added to the MATLAB path.
