@@ -29,57 +29,77 @@ void* mallocDynamic(uint64_t x, uint64_t bits){
     }
 }
         
-void readTiffParallel(uint64_t x, uint64_t y, uint64_t z, char* fileName, void* tiff, uint64_t bits, uint64_t startSlice){
+void readTiffParallel(uint64_t x, uint64_t y, uint64_t z, char* fileName, void* tiff, uint64_t bits, uint64_t startSlice, uint64_t stripSize){
     int32_t numWorkers = omp_get_max_threads();
     int32_t batchSize = (z-1)/numWorkers+1;
     
     int32_t w;
+    uint8_t err = 0;
+    char errString[10000];
     #pragma omp parallel for
     for(w = 0; w < numWorkers; w++){
         
         TIFF* tif = TIFFOpen(fileName, "r");
-        if(!tif) mexErrMsgIdAndTxt("tiff:threadError","Thread %d: File \"%s\" cannot be opened\n",w,fileName);
-        
-        void* buffer = mallocDynamic(x, bits);
+        if(!tif){
+            #pragma omp critical
+            {
+            err = 1;
+            sprintf(errString,"Thread %d: File \"%s\" cannot be opened\n",w,fileName);
+            }
+        }
+        void* buffer = mallocDynamic(x*stripSize, bits);
         for(int64_t dir = startSlice+(w*batchSize); dir < startSlice+((w+1)*batchSize); dir++){
-            if(dir>=z+startSlice) break;
+            if(dir>=z+startSlice || err) break;
             
-            int counter = 0; 
+            uint8_t counter = 0; 
             while(!TIFFSetDirectory(tif, (uint64_t)dir) && counter<3){
                 printf("Thread %d: File \"%s\" Directory \"%d\" failed to open. Try %d\n",w,fileName,dir,counter+1);
                 counter++;
             }
 
-            for (int64_t i = 0; i < y; i++) 
+            for (int64_t i = 0; i*stripSize < y; i++) 
             {
+                
                 //loading the data into a buffer
                 switch(bits){
                     case 8:
-                        TIFFReadScanline(tif, (uint8_t*)buffer, i, 0);
                         // Map Values to flip x and y for MATLAB
-                        for(int64_t j = 0; j < x; j++){
-                            ((uint8_t*)tiff)[((j*y)+i)+((dir-startSlice)*(x*y))] = ((uint8_t*)buffer)[j];
+                        TIFFReadEncodedStrip(tif, i,(uint8_t*)buffer, x*stripSize*bits);
+                        for(int64_t k = 0; k < stripSize; k++){
+                            if((k+(i*stripSize)) >= y) break;
+                            for(int64_t j = 0; j < x; j++){
+                                ((uint8_t*)tiff)[((j*y)+(k+(i*stripSize)))+((dir-startSlice)*(x*y))] = ((uint8_t*)buffer)[j+(k*x)];
+                            }
                         }
                         break;
                     case 16:
-                        TIFFReadScanline(tif, (uint16_t*)buffer, i, 0);
                         // Map Values to flip x and y for MATLAB
-                        for(int64_t j = 0; j < x; j++){
-                            ((uint16_t*)tiff)[((j*y)+i)+((dir-startSlice)*(x*y))] = ((uint16_t*)buffer)[j];
+                        TIFFReadEncodedStrip(tif, i,(uint16_t*)buffer, x*stripSize*bits);
+                        for(int64_t k = 0; k < stripSize; k++){
+                            if((k+(i*stripSize)) >= y) break;
+                            for(int64_t j = 0; j < x; j++){
+                                ((uint16_t*)tiff)[((j*y)+(k+(i*stripSize)))+((dir-startSlice)*(x*y))] = ((uint16_t*)buffer)[j+(k*x)];
+                            }
                         }
                         break;
                     case 32:
-                        TIFFReadScanline(tif, (float*)buffer, i, 0);
                         // Map Values to flip x and y for MATLAB
-                        for(int64_t j = 0; j < x; j++){
-                            ((float*)tiff)[((j*y)+i)+((dir-startSlice)*(x*y))] = ((float*)buffer)[j];
+                        TIFFReadEncodedStrip(tif, i,(float*)buffer, x*stripSize*bits);
+                        for(int64_t k = 0; k < stripSize; k++){
+                            if((k+(i*stripSize)) >= y) break;
+                            for(int64_t j = 0; j < x; j++){
+                                ((float*)tiff)[((j*y)+(k+(i*stripSize)))+((dir-startSlice)*(x*y))] = ((float*)buffer)[j+(k*x)];
+                            }
                         }
                         break;
                     case 64:
-                        TIFFReadScanline(tif, (double*)buffer, i, 0);
                         // Map Values to flip x and y for MATLAB
-                        for(int64_t j = 0; j < x; j++){
-                            ((double*)tiff)[((j*y)+i)+((dir-startSlice)*(x*y))] = ((double*)buffer)[j];
+                        TIFFReadEncodedStrip(tif, i,(double*)buffer, x*stripSize*bits);
+                        for(int64_t k = 0; k < stripSize; k++){
+                            if((k+(i*stripSize)) >= y) break;
+                            for(int64_t j = 0; j < x; j++){
+                                ((double*)tiff)[((j*y)+(k+(i*stripSize)))+((dir-startSlice)*(x*y))] = ((double*)buffer)[j+(k*x)];
+                            }
                         }
                         break;
                 }
@@ -88,6 +108,7 @@ void readTiffParallel(uint64_t x, uint64_t y, uint64_t z, char* fileName, void* 
         free(buffer);
         TIFFClose(tif);
     }
+    if(err) mexErrMsgIdAndTxt("tiff:threadError",errString);
 }
 
 void mexFunction(int nlhs, mxArray *plhs[],
@@ -140,6 +161,8 @@ void mexFunction(int nlhs, mxArray *plhs[],
     }
   
     TIFFGetField(tif, TIFFTAG_BITSPERSAMPLE, &bits);
+    uint64_t stripSize = 1;
+    TIFFGetField(tif, TIFFTAG_ROWSPERSTRIP, &stripSize);
     TIFFClose(tif);
     uint64_t dim[3];
     dim[0] = y;
@@ -149,22 +172,22 @@ void mexFunction(int nlhs, mxArray *plhs[],
     if(bits == 8){
         plhs[0] = mxCreateNumericArray(3,dim,mxUINT8_CLASS, mxREAL);
         uint8_t* tiff = (uint8_t*)mxGetPr(plhs[0]);
-        readTiffParallel(x,y,z,fileName, (void*)tiff, bits, startSlice);
+        readTiffParallel(x,y,z,fileName, (void*)tiff, bits, startSlice, stripSize);
     }
     else if(bits == 16){
         plhs[0] = mxCreateNumericArray(3,dim,mxUINT16_CLASS, mxREAL);
         uint16_t* tiff = (uint16_t*)mxGetPr(plhs[0]);
-        readTiffParallel(x,y,z,fileName, (void*)tiff, bits, startSlice);
+        readTiffParallel(x,y,z,fileName, (void*)tiff, bits, startSlice, stripSize);
     }
     else if(bits == 32){
         plhs[0] = mxCreateNumericArray(3,dim,mxSINGLE_CLASS, mxREAL);
         float* tiff = (float*)mxGetPr(plhs[0]);
-        readTiffParallel(x,y,z,fileName, (void*)tiff, bits, startSlice);
+        readTiffParallel(x,y,z,fileName, (void*)tiff, bits, startSlice, stripSize);
     }
     else if(bits == 64){
         plhs[0] = mxCreateNumericArray(3,dim,mxDOUBLE_CLASS, mxREAL);
         double* tiff = (double*)mxGetPr(plhs[0]);
-        readTiffParallel(x,y,z,fileName, (void*)tiff, bits, startSlice);
+        readTiffParallel(x,y,z,fileName, (void*)tiff, bits, startSlice, stripSize);
     }
     else{
         mexErrMsgIdAndTxt("tiff:dataTypeError","Data type not suppported");
