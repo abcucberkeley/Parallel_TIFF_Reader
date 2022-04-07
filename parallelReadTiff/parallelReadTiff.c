@@ -64,7 +64,7 @@ void readTiffParallel(uint64_t x, uint64_t y, uint64_t z, char* fileName, void* 
                 switch(bits){
                     case 8:
                         // Map Values to flip x and y for MATLAB
-                        TIFFReadEncodedStrip(tif, i,(uint8_t*)buffer, x*stripSize*bits);
+                        TIFFReadEncodedStrip(tif, i,(uint8_t*)buffer, stripSize*x*(bits/8));
                         for(int64_t k = 0; k < stripSize; k++){
                             if((k+(i*stripSize)) >= y) break;
                             for(int64_t j = 0; j < x; j++){
@@ -74,7 +74,7 @@ void readTiffParallel(uint64_t x, uint64_t y, uint64_t z, char* fileName, void* 
                         break;
                     case 16:
                         // Map Values to flip x and y for MATLAB
-                        TIFFReadEncodedStrip(tif, i,(uint16_t*)buffer, x*stripSize*bits);
+                        TIFFReadEncodedStrip(tif, i,(uint16_t*)buffer, stripSize*x*(bits/8));
                         for(int64_t k = 0; k < stripSize; k++){
                             if((k+(i*stripSize)) >= y) break;
                             for(int64_t j = 0; j < x; j++){
@@ -84,7 +84,7 @@ void readTiffParallel(uint64_t x, uint64_t y, uint64_t z, char* fileName, void* 
                         break;
                     case 32:
                         // Map Values to flip x and y for MATLAB
-                        TIFFReadEncodedStrip(tif, i,(float*)buffer, x*stripSize*bits);
+                        TIFFReadEncodedStrip(tif, i,(float*)buffer, stripSize*x*(bits/8));
                         for(int64_t k = 0; k < stripSize; k++){
                             if((k+(i*stripSize)) >= y) break;
                             for(int64_t j = 0; j < x; j++){
@@ -94,7 +94,7 @@ void readTiffParallel(uint64_t x, uint64_t y, uint64_t z, char* fileName, void* 
                         break;
                     case 64:
                         // Map Values to flip x and y for MATLAB
-                        TIFFReadEncodedStrip(tif, i,(double*)buffer, x*stripSize*bits);
+                        TIFFReadEncodedStrip(tif, i,(double*)buffer, stripSize*x*(bits/8));
                         for(int64_t k = 0; k < stripSize; k++){
                             if((k+(i*stripSize)) >= y) break;
                             for(int64_t j = 0; j < x; j++){
