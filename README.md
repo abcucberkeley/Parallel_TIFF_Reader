@@ -1,3 +1,6 @@
+# DEPRECATED REPOSITORY
+This repository is now deprecated. Please use https://github.com/abcucberkeley/c-tiff for the most up to date version.
+
 # Parallel_TIFF_Reader
 
 An optimized and efficient parallel tiff reader that utilizes LibTIFF and OpenMP.
